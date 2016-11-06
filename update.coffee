@@ -18,11 +18,11 @@ fetch = ->
 
     html = cheerio.load(reference)
     rows = html(".csspropertytable tr")
-    completions = {
+    completions =
+      tags: {}
       properties: Collect(rows, GetProperty),
       pseudoSelectors: Collect(rows, GetSelector),
-      classes: Collect(html(".styleclass"), GetClass)
-    }
+      classNames: Collect(html(".styleclass"), GetClassNames)
     fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, '  ')}\n")
 
 Collect = (rows, getter) ->
@@ -47,9 +47,9 @@ GetSelector = (row) ->
     description: Text(cheerio("td:nth-child(2)", row))
   } if name.length and cheerio("td", row).length is 2
 
-GetClass = (row) ->
+GetClassNames = (row) ->
   name = Text(cheerio(row)).replace("Style class:", "").trim()
-  {name: name} unless /\s+|\./.test(name)
+  {name: "." + name} unless /\s+|\./.test(name)
 
 Text = (node) -> node.text().replace(/\s+/g, " ").trim()
 
