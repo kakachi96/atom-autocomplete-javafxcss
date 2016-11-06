@@ -4,8 +4,9 @@ path = require 'path'
 firstInlinePropertyNameWithColonPattern = /{\s*(\S+)\s*:/ # .example { display: }
 inlinePropertyNameWithColonPattern = /(?:;.+?)*;\s*(\S+)\s*:/ # .example { display: block; float: left; color: } (match the last one)
 propertyNameWithColonPattern = /^\s*(\S+)\s*:/ # display:
-propertyNamePrefixPattern = /[a-zA-Z]+[-a-zA-Z]*$/
+propertyNamePrefixPattern = /[-a-zA-Z]+$/
 pesudoSelectorPrefixPattern = /:(:)?([a-z]+[a-z-]*)?$/
+classNamePrefixPattern = /\.([a-z]+[a-z-]*)?$/
 tagSelectorPrefixPattern = /(^|\s|,)([a-z]+)?$/
 importantPrefixPattern = /(![a-z]+)$/
 cssDocsURL = "https://developer.mozilla.org/en-US/docs/Web/CSS"
@@ -28,6 +29,8 @@ module.exports =
       completions = @getPropertyValueCompletions(request)
     else if @isCompletingPseudoSelector(request)
       completions = @getPseudoSelectorCompletions(request)
+    else if @isCompletingClassName(request)
+      completions = @getClassNameCompletions(request)
     else
       if isSass and @isCompletingNameOrTag(request)
         completions = @getPropertyNameCompletions(request)
@@ -52,7 +55,7 @@ module.exports =
   loadProperties: ->
     @properties = {}
     fs.readFile path.resolve(__dirname, '..', 'completions.json'), (error, content) =>
-      {@pseudoSelectors, @properties, @tags} = JSON.parse(content) unless error?
+      {@pseudoSelectors, @properties, @tags, @classNames} = JSON.parse(content) unless error?
       return
 
   isCompletingValue: ({scopeDescriptor, bufferPosition, prefix, editor}) ->
@@ -71,6 +74,8 @@ module.exports =
     (hasScope(scopes, 'meta.property-list.scss') and prefix.trim() is ":") or
     (hasScope(previousScopesArray, 'meta.property-value.scss')) or
     (hasScope(scopes, 'source.sass') and (hasScope(scopes, 'meta.property-value.sass') or
+      # meta.property-value.sass scope is missing for properties starting with '-'
+      (firstCharsEqual(@getPreviousPropertyName(bufferPosition, editor), '-') and prefix.trim() isnt '-') or
       (not hasScope(beforePrefixScopesArray, "entity.name.tag.css.sass") and prefix.trim() is ":")
     ))
 
@@ -140,7 +145,7 @@ module.exports =
 
   isCompletingPseudoSelector: ({editor, scopeDescriptor, bufferPosition}) ->
     scopes = scopeDescriptor.getScopesArray()
-    if hasScope(scopes, 'meta.selector.css') and not hasScope(scopes, 'source.sass')
+    if hasScope(scopes, 'meta.selector.css') and not hasScope(scopes, 'source.sass') and @getPseudoSelectorPrefix(editor, bufferPosition)
       true
     else if hasScope(scopes, 'source.css.scss') or hasScope(scopes, 'source.css.less') or hasScope(scopes, 'source.sass')
       prefix = @getPseudoSelectorPrefix(editor, bufferPosition)
@@ -152,6 +157,28 @@ module.exports =
           not hasScope(previousScopesArray, 'meta.property-value.scss') and
           not hasScope(previousScopesArray, 'support.type.property-name.css') and
           not hasScope(previousScopesArray, 'support.type.property-value.css')
+      else
+        false
+    else
+      false
+
+  isCompletingClassName: ({editor, scopeDescriptor, bufferPosition}) ->
+    scopes = scopeDescriptor.getScopesArray()
+
+    if hasScope(scopes, 'meta.selector.css') and not hasScope(scopes, 'source.sass') and @getClassNamePrefix(editor, bufferPosition)
+      true
+    else if hasScope(scopes, 'source.css.scss') or hasScope(scopes, 'source.css.less') or hasScope(scopes, 'source.sass')
+      prefix = @getClassNamePrefix(editor, bufferPosition)
+      if prefix
+        previousBufferPosition = [bufferPosition.row, Math.max(0, bufferPosition.column - prefix.length - 1)]
+        previousScopes = editor.scopeDescriptorForBufferPosition(previousBufferPosition)
+        previousScopesArray = previousScopes.getScopesArray()
+        not hasScope(previousScopesArray, 'meta.property-name.scss') and
+          not hasScope(previousScopesArray, 'meta.property-value.scss') and
+          not hasScope(previousScopesArray, 'meta.property-list.scss') and
+          not hasScope(previousScopesArray, 'support.type.property-name.css') and
+          not hasScope(previousScopesArray, 'support.type.property-value.css') and
+          not hasScope(previousScopesArray, 'meta.property-list.css')
       else
         false
     else
@@ -272,6 +299,24 @@ module.exports =
       completion.text = pseudoSelector
     completion
 
+  getClassNamePrefix: (editor, bufferPosition) ->
+    line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
+    line.match(classNamePrefixPattern)?[0]
+
+  getClassNameCompletions: ({bufferPosition, editor}) ->
+    prefix = @getClassNamePrefix(editor, bufferPosition)
+    return null unless prefix
+
+    (for className, options of @classNames when firstCharsEqual(className, prefix)
+      @buildClassNameCompletion(className, prefix, options))
+
+  buildClassNameCompletion: (className, prefix) ->
+    {
+      type: 'className'
+      replacementPrefix: prefix
+      text: className
+    }
+
   getTagSelectorPrefix: (editor, bufferPosition) ->
     line = editor.getTextInRange([[bufferPosition.row, 0], bufferPosition])
     tagSelectorPrefixPattern.exec(line)?[2]
@@ -292,4 +337,4 @@ hasScope = (scopesArray, scope) ->
   scopesArray.indexOf(scope) isnt -1
 
 firstCharsEqual = (str1, str2) ->
-  str1[0].toLowerCase() is str2[0].toLowerCase()
+  str1 and str2 and str1.length >= str2.length and str1.substr(0, str2.length).toLowerCase() is str2.toLowerCase()
