@@ -28,28 +28,28 @@ fetch = ->
 Collect = (rows, getter) ->
   dict = {}
   dict[item.name] = item for item in (getter(row) for row in rows) when item?
-  delete dict[name].name for name of dict
-  return dict
+  delete item.name for name, item of dict
+  dict
 
 GetProperty = (row) ->
   name = cheerio("td.propertyname", row)
   value = cheerio("td.value", row)
-  return {
+  {
     name: Text(name),
-    values: val for val in Text(value).split(" ") when !/[<>|,=]|\[|\]|\//.test(val)
+    values: val for val in Text(value).split(" ") when not /[<>|,=]|\[|\]|\//.test(val)
     description: Text(cheerio("td:nth-child(4)", row))
-  } if name.length && value.length
+  } if name.length and value.length
 
 GetSelector = (row) ->
   name = cheerio("td.propertyname", row)
-  return {
+  {
     name: ":" + Text(name),
     description: Text(cheerio("td:nth-child(2)", row))
-  } if name.length && cheerio("td", row).length == 2
+  } if name.length and cheerio("td", row).length is 2
 
 GetClass = (row) ->
   name = Text(cheerio(row)).replace("Style class:", "").trim()
-  return {name: name} unless /\s+|\./.test(name)
+  {name: name} unless /\s+|\./.test(name)
 
 Text = (node) -> node.text().replace(/\s+/g, " ").trim()
 
