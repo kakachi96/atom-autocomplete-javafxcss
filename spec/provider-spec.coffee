@@ -26,10 +26,10 @@ describe "CSS property name and value autocompletions", ->
     provider.getSuggestions(request)
 
   beforeEach ->
-    waitsForPromise -> atom.packages.activatePackage('autocomplete-css')
+    waitsForPromise -> atom.packages.activatePackage('autocomplete-javafxcss')
 
     runs ->
-      provider = atom.packages.getActivePackage('autocomplete-css').mainModule.getProvider()
+      provider = atom.packages.getActivePackage('autocomplete-javafxcss').mainModule.getProvider()
 
     waitsFor -> Object.keys(provider.properties).length > 0
 
