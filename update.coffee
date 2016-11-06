@@ -36,7 +36,7 @@ GetProperty = (row) ->
   value = cheerio("td.value", row)
   {
     name: Text(name),
-    values: val for val in Text(value).split(" ") when not /[<>|,=]|\[|\]|\//.test(val)
+    values: (val for val in Text(value).split(" ") when not /[<>|,=]|\[|\]|\//.test(val)).sort()
     description: Text(cheerio("td:nth-child(4)", row))
   } if name.length and value.length
 

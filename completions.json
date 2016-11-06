@@ -47,22 +47,22 @@
     },
     "-fx-cursor": {
       "values": [
-        "null",
         "crosshair",
         "default",
-        "hand",
-        "move",
         "e-resize",
         "h-resize",
-        "ne-resize",
-        "nw-resize",
+        "hand",
+        "move",
         "n-resize",
+        "ne-resize",
+        "null",
+        "nw-resize",
+        "s-resize",
         "se-resize",
         "sw-resize",
-        "s-resize",
-        "w-resize",
-        "v-resize",
         "text",
+        "v-resize",
+        "w-resize",
         "wait"
       ],
       "description": "inherits"
@@ -109,10 +109,10 @@
     },
     "visibility": {
       "values": [
-        "visible",
-        "hidden",
         "collapse",
-        "inherit"
+        "hidden",
+        "inherit",
+        "visible"
       ],
       "description": ""
     },
@@ -134,35 +134,35 @@
     },
     "-fx-alignment": {
       "values": [
-        "top-left",
-        "top-center",
-        "top-right",
-        "center-left",
-        "center",
-        "center-right",
-        "bottom-left",
-        "bottom-center",
-        "bottom-right",
-        "baseline-left",
         "baseline-center",
-        "baseline-right"
+        "baseline-left",
+        "baseline-right",
+        "bottom-center",
+        "bottom-left",
+        "bottom-right",
+        "center",
+        "center-left",
+        "center-right",
+        "top-center",
+        "top-left",
+        "top-right"
       ],
       "description": ""
     },
     "-fx-column-halignment": {
       "values": [
-        "left",
         "center",
+        "left",
         "right"
       ],
       "description": ""
     },
     "-fx-row-valignment": {
       "values": [
-        "top",
-        "center",
         "baseline",
-        "bottom"
+        "bottom",
+        "center",
+        "top"
       ],
       "description": ""
     },
@@ -209,38 +209,38 @@
     },
     "-fx-background-position": {
       "values": [
-        "where",
-        "left",
-        "center",
-        "right",
-        "top",
-        "center",
+        "bottom",
         "bottom",
         "center",
+        "center",
+        "center",
+        "center",
+        "left",
         "left",
         "right",
-        "center",
+        "right",
         "top",
-        "bottom"
+        "top",
+        "where"
       ],
       "description": "A series of <bg-position> values separated by commas. Each bg-position item in the series applies to the corresponding image in the background-image series."
     },
     "-fx-background-repeat": {
       "values": [
-        "where",
         "repeat-x",
         "repeat-y",
-        "space",
         "round",
-        "stretch"
+        "space",
+        "stretch",
+        "where"
       ],
       "description": "A series of <repeat-style> values separated by commas. Each repeat-style item in the series applies to the corresponding image in the background-image series."
     },
     "-fx-background-size": {
       "values": [
         "auto",
-        "cover",
         "contain",
+        "cover",
         "stretch"
       ],
       "description": "A series of <bg-size> values separated by commas. Each bg-size item in the series applies to the corresponding image in the background-image series."
@@ -265,16 +265,16 @@
     },
     "-fx-border-style": {
       "values": [
-        "where",
-        "inside",
         "bevel",
         "butt",
-        "where",
-        "none",
-        "solid",
-        "dotted",
         "dashed",
-        "segments("
+        "dotted",
+        "inside",
+        "none",
+        "segments(",
+        "solid",
+        "where",
+        "where"
       ],
       "description": "A series of border style values, separated by commas. Each item in the series applies to the corresponding item in the series of border colors. The segments dash-style defines a sequence representing the lengths of the dash segments. Alternate entries in the sequence represent the lengths of the opaque and transparent segments of the dashes. This corresponds to the strokeDashArray variable of Shape. The optional phase parameter defines the point in the dashing pattern that will correspond to the beginning of the stroke. This corresponds to the strokeDashOffset variable of Shape."
     },
@@ -292,11 +292,11 @@
     },
     "-fx-border-image-repeat": {
       "values": [
-        "where",
         "repeat-x",
         "repeat-y",
+        "round",
         "space",
-        "round"
+        "where"
       ],
       "description": "A series of repeat-style values, separated by commas. Each item in the series applies to the corresponding image in the series of border images."
     },
@@ -357,18 +357,18 @@
     },
     "-fx-tile-alignment": {
       "values": [
-        "top-left",
-        "top-center",
-        "top-right",
-        "center-left",
-        "center",
-        "center-right",
-        "bottom-left",
-        "bottom-center",
-        "bottom-right",
-        "baseline-left",
         "baseline-center",
-        "baseline-right"
+        "baseline-left",
+        "baseline-right",
+        "bottom-center",
+        "bottom-left",
+        "bottom-right",
+        "center",
+        "center-left",
+        "center-right",
+        "top-center",
+        "top-left",
+        "top-right"
       ],
       "description": ""
     },
@@ -390,9 +390,9 @@
     },
     "-fx-stroke-type": {
       "values": [
+        "centered",
         "inside",
-        "outside",
-        "centered"
+        "outside"
       ],
       "description": ""
     },
@@ -406,16 +406,16 @@
     },
     "-fx-stroke-line-cap": {
       "values": [
-        "square",
         "butt",
-        "round"
+        "round",
+        "square"
       ],
       "description": ""
     },
     "-fx-stroke-line-join": {
       "values": [
-        "miter",
         "bevel",
+        "miter",
         "round"
       ],
       "description": ""
@@ -449,18 +449,18 @@
     },
     "-fx-text-alignment": {
       "values": [
-        "left",
         "center",
-        "right",
-        "justify"
+        "justify",
+        "left",
+        "right"
       ],
       "description": ""
     },
     "-fx-text-origin": {
       "values": [
         "baseline",
-        "top",
-        "bottom"
+        "bottom",
+        "top"
       ],
       "description": ""
     },
@@ -534,14 +534,14 @@
     },
     "-fx-content-display": {
       "values": [
-        "top",
-        "right",
         "bottom",
-        "left",
         "center",
-        "right",
         "graphic-only",
-        "text-only"
+        "left",
+        "right",
+        "right",
+        "text-only",
+        "top"
       ],
       "description": ""
     },
@@ -583,10 +583,10 @@
     },
     "-fx-page-information-alignment": {
       "values": [
-        "top",
         "bottom",
         "left",
-        "right"
+        "right",
+        "top"
       ],
       "description": ""
     },
@@ -640,34 +640,34 @@
     },
     "-fx-hbar-policy": {
       "values": [
-        "never",
         "always",
-        "as-needed"
+        "as-needed",
+        "never"
       ],
       "description": ""
     },
     "-fx-vbar-policy": {
       "values": [
-        "never",
         "always",
-        "as-needed"
+        "as-needed",
+        "never"
       ],
       "description": ""
     },
     "-fx-halignment": {
       "values": [
-        "left",
         "center",
+        "left",
         "right"
       ],
       "description": ""
     },
     "-fx-valignment": {
       "values": [
-        "top",
-        "center",
         "baseline",
-        "bottom"
+        "bottom",
+        "center",
+        "top"
       ],
       "description": ""
     },
