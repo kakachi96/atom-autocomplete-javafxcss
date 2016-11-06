@@ -1,41 +1,56 @@
-# Run this to update the static list of properties stored in the properties.json
-# file at the root of this repository.
-
+# Run this to update completions stored in the completions.json
 path = require 'path'
 fs = require 'fs'
 request = require 'request'
-Promise = require 'bluebird'
-fetchPropertyDescriptions = require './fetch-property-docs'
+cheerio = require 'cheerio'
 
-PropertiesURL = 'https://raw.githubusercontent.com/adobe/brackets/master/src/extensions/default/CSSCodeHints/CSSProperties.json'
+referenceURL = 'https://docs.oracle.com/javase/8/javafx/api/javafx/scene/doc-files/cssref.html'
 
-propertyDescriptionsPromise = fetchPropertyDescriptions()
-propertiesPromise = new Promise (resolve) ->
-  request {json: true, url: PropertiesURL}, (error, response, properties) ->
+fetch = ->
+  request {url: referenceURL}, (error, response, reference) ->
     if error?
       console.error(error.message)
-      resolve(null)
+      return
+
     if response.statusCode isnt 200
-      console.error("Request for CSSProperties.json failed: #{response.statusCode}")
-      resolve(null)
-    resolve(properties)
+      console.error("Request for JavaFX CSS Reference Guide failed: #{response.statusCode}")
+      return
 
-Promise.settle([propertiesPromise, propertyDescriptionsPromise]).then (results) ->
-  properties = {}
-  propertiesRaw = results[0].value()
-  propertyDescriptions = results[1].value()
-  sortedPropertyNames = JSON.parse(fs.readFileSync(path.join(__dirname, 'sorted-property-names.json')))
-  for propertyName in sortedPropertyNames
-    continue unless metadata = propertiesRaw[propertyName]
-    metadata.description = propertyDescriptions[propertyName]
-    properties[propertyName] = metadata
-    console.warn "No description for property #{propertyName}" unless propertyDescriptions[propertyName]?
+    html = cheerio.load(reference)
+    rows = html(".csspropertytable tr")
+    completions = {
+      properties: Collect(rows, GetProperty),
+      pseudoSelectors: Collect(rows, GetSelector),
+      classes: Collect(html(".styleclass"), GetClass)
+    }
+    fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, '  ')}\n")
 
-  for propertyName of propertiesRaw
-    console.warn "Ignoring #{propertyName}; not in sorted-property-names.json" if sortedPropertyNames.indexOf(propertyName) < 0
+Collect = (rows, getter) ->
+  dict = {}
+  dict[item.name] = item for item in (getter(row) for row in rows) when item?
+  delete dict[name].name for name of dict
+  return dict
 
-  tags = JSON.parse(fs.readFileSync(path.join(__dirname, 'html-tags.json')))
-  pseudoSelectors = JSON.parse(fs.readFileSync(path.join(__dirname, 'pseudo-selectors.json')))
+GetProperty = (row) ->
+  name = cheerio("td.propertyname", row)
+  value = cheerio("td.value", row)
+  return {
+    name: Text(name),
+    values: val for val in Text(value).split(" ") when !/[<>|,=]|\[|\]|\//.test(val)
+    description: Text(cheerio("td:nth-child(4)", row))
+  } if name.length && value.length
 
-  completions = {tags, properties, pseudoSelectors}
-  fs.writeFileSync(path.join(__dirname, 'completions.json'), "#{JSON.stringify(completions, null, '  ')}\n")
+GetSelector = (row) ->
+  name = cheerio("td.propertyname", row)
+  return {
+    name: ":" + Text(name),
+    description: Text(cheerio("td:nth-child(2)", row))
+  } if name.length && cheerio("td", row).length == 2
+
+GetClass = (row) ->
+  name = Text(cheerio(row)).replace("Style class:", "").trim()
+  return {name: name} unless /\s+|\./.test(name)
+
+Text = (node) -> node.text().replace(/\s+/g, " ").trim()
+
+fetch()
